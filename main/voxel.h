@@ -74,6 +74,9 @@ private:
 	typedef uint16_t NeighborLayer;
 	std::vector<NeighborLayer> m_neighborLayerArr;
 
+	uint8_t SpanCount(uint8_t layerNum) { return layerNum * 2 - 1; }
+	void StreamRead(std::istream& is, uint32_t& v) { is.read((char*)&v, sizeof(uint32_t)); }
+	void StreamWrite(std::ostream& is, uint32_t v) { is.write((char*)&v, sizeof(uint32_t)); }
 public:
 	TerrainData(uint32_t length, uint32_t width, uint32_t height, float spanMeasure = 1.f, float gridSize = 50.f)
 		: m_length(length), m_width(width), m_height(height), m_spanMeasure(spanMeasure), m_gridSize(gridSize)
@@ -83,16 +86,18 @@ public:
 
 	void Import(std::istream& is)
 	{
-		is >> m_length >> m_width >> m_height;
+		StreamRead(is, m_length);
+		StreamRead(is, m_width);
+		StreamRead(is, m_height);
 		m_gridArr.resize(m_length*m_width);
 		uint32_t dataCount = 0;
-		is >> dataCount;
+		StreamRead(is, dataCount);
 		for (uint32_t i = 0; i < dataCount; i++)
 		{
-			int x, y;
+			uint32_t x, y;
 			uint8_t layerNum;
 			is >> x >> y >> layerNum;
-			auto spanCount = layerNum * 2 - 1;
+			auto spanCount = SpanCount(layerNum);
 			uint16_t* spans = new uint16_t[spanCount];
 			is.read((char*)spans, spanCount * sizeof(uint16_t));
 			AddVoxels(x, y, layerNum, spans);
@@ -103,31 +108,45 @@ public:
 
 	void Export(std::ostream& os)
 	{
-		os << m_length << m_width << m_height;
+		StreamWrite(os, m_length);
+		StreamWrite(os, m_width);
+		StreamWrite(os, m_height);
 		uint32_t dataCount = (uint32_t)m_gridArr.size();
-		os << dataCount;
+		StreamWrite(os, dataCount);
 		for (uint32_t j = 0; j < Width(); ++j)
 			for (uint32_t i = 0; i < Length(); ++i)
 			{
 				const auto& vols = GetVoxels(i, j);
 				os << i << j << vols.count;
 				uint16_t* spans = &m_spanArr[vols.spanIndex];
-				os.write((char*)spans, vols.count * sizeof(uint16_t));
+				os.write((char*)spans, SpanCount(vols.count) * sizeof(uint16_t));
 			}
 	}
 
+	// 添加一列体素, 高度为换算值
 	void AddVoxels(uint32_t x, uint32_t y, uint8_t layerNum, uint16_t* spans)
 	{
 		auto& vols = GetVoxels(x, y);
-		m_spanArr.reserve(m_spanArr.size() + layerNum*2);
 		vols.spanIndex = (uint16_t)m_spanArr.size();
 		vols.count = layerNum;
-		for (uint8_t i = 0; i < layerNum*2-1; ++i)
+		m_spanArr.reserve(m_spanArr.size() + SpanCount(layerNum));
+		for (uint8_t i = 0; i < SpanCount(layerNum); ++i)
 		{
 			m_spanArr.push_back(spans[i]);
 		}
 	}
 
+	// 添加一列体素, 高度为浮点值
+	void AddVoxels(uint32_t x, uint32_t y, uint8_t layerNum, float* spans)
+	{
+		auto sz = new uint16_t[SpanCount(layerNum)];
+		for (uint8_t i = 0; i < SpanCount(layerNum); ++i)
+		{
+			sz[i] = uint16_t(spans[i]/SpanMeasure());
+		}
+		AddVoxels(x, y, layerNum, sz);
+		delete[] sz;
+	}
 private:
 	// 构建附近关系
 	void CalcNeighborRelation(uint32_t x, uint32_t y, Direction dir, uint8_t layer, float hight, uint16_t arrIndex)
@@ -350,8 +369,6 @@ public:
 		m_grid = m_terr->GetGrid(m_gridX, m_gridY);
 		m_layer = m_terr->GetData().GetLayer(m_vols, loc.z);
 	}
-
-
 };
 
 
