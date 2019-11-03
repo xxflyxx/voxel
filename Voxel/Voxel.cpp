@@ -363,6 +363,7 @@ public:
 	void AddMask() { m_terr->AddMask(m_grid, m_layer); }
 	void DecMask() { m_terr->DecMask(m_grid, m_layer); }
 	
+	// ¸üĞÂÎ»ÖÃ
 	void Update(const Location& loc)
 	{
 		m_loc = loc;

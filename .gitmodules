@@ -1,0 +1,6 @@
+[submodule "astar"]
+	path = astar
+	url = https://github.com/justinhj/astar-algorithm-cpp.git
+[submodule "entt"]
+	path = entt
+	url = https://github.com/skypjack/entt.git
