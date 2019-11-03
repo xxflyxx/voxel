@@ -228,7 +228,7 @@ public:
 
 	// 获取坐标对应的体素列表
 	const Voxels& GetVoxels(uint32_t x, uint32_t y) const { assert(x < m_length && y < m_width); return m_gridArr[y*m_width + x]; }
-	const Voxels& GetVoxels(float x, float y) const { return GetVoxels(uint32_t(x / m_gridSize), uint32_t(y / m_gridSize)); }
+	//const Voxels& GetVoxels(float x, float y) const { return GetVoxels(uint32_t(x / m_gridSize), uint32_t(y / m_gridSize)); }
 	Voxels& GetVoxels(uint32_t x, uint32_t y) { assert(x < m_length && y < m_width); return m_gridArr[y*m_width + x]; }
 
 	// spanIndex 来自 Voxels结构体, layer为grid第几个体素, 注意layer必须<Voxels.count
@@ -284,7 +284,7 @@ public:
 
 	const TerrainData& GetData() const { assert(m_terr); return *m_terr; }
 	const Grid& GetGrid(uint32_t x, uint32_t y) { return m_gridArr[y*GetData().Width()+x]; }
-	const Grid& GetGrid(float x, float y) { return GetGrid(x/m_terr->GridSize(), y/m_terr->GridSize()); }
+	//const Grid& GetGrid(float x, float y) { return GetGrid(x/m_terr->GridSize(), y/m_terr->GridSize()); }
 
 	// 掩码
 	bool IsMask(const Grid& grid, uint8_t layer)
@@ -348,6 +348,8 @@ class VoxelProxy
 	uint8_t m_radius;
 
 	Location m_loc;
+	uint32_t m_gridX;
+	uint32_t m_gridY;
 public:
 	VoxelProxy(TerrainInstance* terr, const Location& loc, uint8_t radius=0)
 		: m_terr(terr), m_radius(radius) { Update(loc);	}
@@ -364,8 +366,11 @@ public:
 	void Update(const Location& loc)
 	{
 		m_loc = loc;
-		m_vols = m_terr->GetData().GetVoxels(loc.x, loc.y);
-		m_grid = m_terr->GetGrid(loc.x, loc.y);
+		m_gridX = uint32_t(loc.x / m_terr->GetData().GridSize());
+		m_gridY = uint32_t(loc.y / m_terr->GetData().GridSize());
+
+		m_vols = m_terr->GetData().GetVoxels(m_gridX, m_gridY);
+		m_grid = m_terr->GetGrid(m_gridX, m_gridY);
 		m_layer = m_terr->GetData().GetLayer(m_vols, loc.z);
 	}
 
