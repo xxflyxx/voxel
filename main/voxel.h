@@ -76,7 +76,9 @@ private:
 
 	uint8_t SpanCount(uint8_t layerNum) { return layerNum * 2 - 1; }
 	void StreamRead(std::istream& is, uint32_t& v) { is.read((char*)&v, sizeof(uint32_t)); }
-	void StreamWrite(std::ostream& is, uint32_t v) { is.write((char*)&v, sizeof(uint32_t)); }
+	void StreamWrite(std::ostream& os, uint32_t v) { os.write((char*)&v, sizeof(uint32_t)); }
+	void StreamRead(std::istream& is, uint8_t& v) { is.read((char*)&v, sizeof(uint8_t)); }
+	void StreamWrite(std::ostream& os, uint8_t v) { os.write((char*)&v, sizeof(uint8_t)); }
 public:
 	TerrainData(uint32_t length, uint32_t width, uint32_t height, float spanMeasure = 1.f, float gridSize = 50.f)
 		: m_length(length), m_width(width), m_height(height), m_spanMeasure(spanMeasure), m_gridSize(gridSize)
@@ -96,7 +98,9 @@ public:
 		{
 			uint32_t x, y;
 			uint8_t layerNum;
-			is >> x >> y >> layerNum;
+			StreamRead(is, x);
+			StreamRead(is, y);
+			StreamRead(is, layerNum);
 			auto spanCount = SpanCount(layerNum);
 			uint16_t* spans = new uint16_t[spanCount];
 			is.read((char*)spans, spanCount * sizeof(uint16_t));
@@ -117,7 +121,9 @@ public:
 			for (uint32_t i = 0; i < Length(); ++i)
 			{
 				const auto& vols = GetVoxels(i, j);
-				os << i << j << vols.count;
+				StreamWrite(os, i);
+				StreamWrite(os, j);
+				StreamWrite(os, vols.count);
 				uint16_t* spans = &m_spanArr[vols.spanIndex];
 				os.write((char*)spans, SpanCount(vols.count) * sizeof(uint16_t));
 			}
@@ -227,8 +233,8 @@ public:
 	Voxels& GetVoxels(uint32_t x, uint32_t y) { assert(x < m_length && y < m_width); return m_gridArr[y*m_width + x]; }
 
 	// spanIndex 来自 Voxels结构体, layer为grid第几个体素, 注意layer必须<Voxels.count
-	float GetVoxelUpper(uint16_t spanIndex, uint8_t layer) const { return m_spanArr[spanIndex + layer * 2 + 1] * m_spanMeasure; }
-	float GetVoxelDown(uint16_t spanIndex, uint8_t layer) const { return m_spanArr[spanIndex + layer * 2] * m_spanMeasure; }
+	float GetVoxelUpper(uint16_t spanIndex, uint8_t layer) const { return m_spanArr[spanIndex + layer * 2] * m_spanMeasure; }
+	float GetVoxelDown(uint16_t spanIndex, uint8_t layer) const { return layer == 0 ? 0.f : m_spanArr[spanIndex + layer * 2 - 1] * m_spanMeasure; }
 
 	// 获取临近对象的layer
 	LayerRelation GetNeighborLayerRelation(const Voxels& vols, uint8_t layer, Direction dir)
