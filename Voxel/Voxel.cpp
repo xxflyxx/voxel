@@ -374,52 +374,6 @@ public:
 
 
 
-// 简单封装不考虑结构
-class VoxelSystem
-{
-public:
-	virtual ~VoxelSystem() {}
-	virtual void Tick(float delta) {}
-};
-
-class VoxelPawn
-{
-	VoxelProxy* m_pxy;
-	Transform m_trans;
-
-	std::vector<VoxelSystem*> m_sysArr;
-	VoxelPawn(TerrainInstance* terr, const Transform& trans, int radius);
-	void AddSystem(VoxelSystem* system) { m_sysArr.push_back(system); }
-public:
-	enum SpawnCondition : uint8_t
-	{
-		SpawnNoCheck, // 不判断掩码强制创建
-		SpawnFailCheckCollision, // 有掩码则不创建并返回null
-	};
-	static VoxelPawn* Create(TerrainInstance* terr, const Transform& trans, int radius = 1, SpawnCondition condi = SpawnCondition::SpawnNoCheck);
-
-	void Tick(float delta) { for (auto s : m_sysArr) { s->Tick(delta); } }
-public:
-// 	class MoveSystem
-// 	void MoveWithoutCheck(const Location& loc);
-// 	bool MoveTo(const Location& loc);
-// 	bool TelportTo(const Location& loc);
-};
-
-
-class Collision : public VoxelSystem
-{
-	static int s_systemId;
-	VoxelPawn* m_pawn;
-
-	Collision(VoxelPawn* pawn);
-	bool CanMoveTo(const Location& loc) const;
-	bool CanTelportTo(const Location& loc) const;
-};
-
-int Collision::s_systemId = 1;
-
-
 
 
 
