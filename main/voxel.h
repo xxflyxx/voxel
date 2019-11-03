@@ -1,36 +1,12 @@
-// Voxel.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#pragma once
 
-#include "pch.h"
 #include <iostream>
 #include <vector>
 #include <assert.h>
+#include "typedef.h"
 
-//using namespace vpx;
+//namespace vpx
 
-struct Vector3
-{
-	float x, y, z;
-};
-
-struct Rotation
-{
-	float pitch;
-	float yaw;
-	float roll;
-};
-
-struct Location : Vector3
-{
-
-};
-
-class Transform
-{
-public:
-	Location loc;
-	Rotation rot;
-};
 
 // ·½Ïò±àºÅ
 enum Direction : uint8_t

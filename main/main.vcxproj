@@ -152,6 +152,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="typedef.h" />
+    <ClInclude Include="voxel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

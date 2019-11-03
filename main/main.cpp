@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include <iostream>
+#include "voxel.h"
 
 int main()
 {
