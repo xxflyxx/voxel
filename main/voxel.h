@@ -4,12 +4,13 @@
 #include <vector>
 #include <assert.h>
 #include "typedef.h"
+#include <functional>
 
 //namespace vpx
 
 
 // 方向编号
-enum Direction : uint8_t
+enum class Direction : uint8_t
 {
 	Front = 0,
 	RF = 1,
@@ -22,7 +23,7 @@ enum Direction : uint8_t
 };
 
 // 8方向掩码
-enum DirectionMask : uint16_t
+enum class DirectionMask : uint16_t
 {
 	DirectionMaskFront = 0x0003,
 	DirectionMaskRF = 0x000C,
@@ -35,7 +36,7 @@ enum DirectionMask : uint16_t
 };
 
 // layer邻居关系
-enum LayerRelation : uint8_t
+enum class LayerRelation : uint8_t
 {
 	Same = 0x00,
 	Above = 0x01,
@@ -160,35 +161,35 @@ private:
 		uint8_t dstLayer = 255;
 		switch (dir)
 		{
-		case Front:
+		case Direction::Front:
 			if (x < Length() - 1)
 				dstLayer = GetLayer(GetVoxels(x + 1, y), hight);
 			break;
-		case RF:
+		case Direction::RF:
 			if (x < Length() - 1 && y < Width() - 1)
 				dstLayer = GetLayer(GetVoxels(x + 1, y + 1), hight);
 			break;
-		case Right:
+		case Direction::Right:
 			if (y < Width() - 1)
 				dstLayer = GetLayer(GetVoxels(x, y + 1), hight);
 			break;
-		case RB:
+		case Direction::RB:
 			if (y < Width() - 1 && x > 0)
 				dstLayer = GetLayer(GetVoxels(x - 1, y + 1), hight);
 			break;
-		case Back:
+		case Direction::Back:
 			if (x > 0)
 				dstLayer = GetLayer(GetVoxels(x - 1, y), hight);
 			break;
-		case LB:
+		case Direction::LB:
 			if (x > 0 && y > 0)
 				dstLayer = GetLayer(GetVoxels(x - 1, y - 1), hight);
 			break;
-		case Left:
+		case Direction::Left:
 			if (y > 0)
 				dstLayer = GetLayer(GetVoxels(x, y - 1), hight);
 			break;
-		case LF:
+		case Direction::LF:
 			if (y > 0 && x < Length() - 1)
 				dstLayer = GetLayer(GetVoxels(x + 1, y - 1), hight);
 			break;
@@ -198,7 +199,7 @@ private:
 		auto rel = dstLayer == layer ? LayerRelation::Same
 			: dstLayer == layer + 1 ? LayerRelation::Above 
 			: dstLayer == layer - 1 ? LayerRelation::Low : LayerRelation::Unknow;
-		m_neighborLayerArr[arrIndex + layer] = uint32_t(rel) << (dir*2);
+		m_neighborLayerArr[arrIndex + layer] = uint32_t(rel) << (uint8_t(dir)*2);
 	}
 
 public:
@@ -237,9 +238,9 @@ public:
 	float GetVoxelDown(uint16_t spanIndex, uint8_t layer) const { return layer == 0 ? 0.f : m_spanArr[spanIndex + layer * 2 - 1] * m_spanMeasure; }
 
 	// 获取临近对象的layer
-	LayerRelation GetNeighborLayerRelation(const Voxels& vols, uint8_t layer, Direction dir)
+	LayerRelation GetNeighborLayerRelation(const Voxels& vols, uint8_t layer, Direction dir) const
 	{
-		uint16_t offset = dir * 2;
+		uint16_t offset = uint8_t(dir) * 2;
 		auto relation = m_neighborLayerArr[vols.neighborLayerIndex + layer] & (0x03 << offset);
 		
 		return LayerRelation(relation >> offset);
@@ -261,6 +262,11 @@ public:
 
 	// layer计算高
 	float GetHight(const Voxels& vols, uint8_t layer) const { return GetVoxelUpper(vols.spanIndex, layer); }
+
+	void CalcDirectionGrid(Direction dir, uint32_t& x, uint32_t& y) const
+	{
+
+	}
 };
 
 
@@ -373,7 +379,38 @@ public:
 
 		m_vols = m_terr->GetData().GetVoxels(m_gridX, m_gridY);
 		m_grid = m_terr->GetGrid(m_gridX, m_gridY);
-		m_layer = m_terr->GetData().GetLayer(m_vols, loc.z);
+		m_layer = GetLayer(m_vols, loc.z);
+	}
+
+	// x y 计算体素
+	const TerrainData::Voxels& GetVoxels(uint32_t x, uint32_t y) const
+	{
+		return m_terr->GetData().GetVoxels(x, y);
+	}
+
+	// 获取体素的 layer
+	uint8_t GetLayer(const TerrainData::Voxels& vol, float hight) const
+	{
+		return m_terr->GetData().GetLayer(vol, hight);
+	}
+
+	//  dir 对应 X Y
+	void CalcDirectionGrid(Direction dir, uint32_t& x, uint32_t& y) const
+	{
+		m_terr->GetData().CalcDirectionGrid(dir, x, y);
+	}
+
+	// 遍历 周围体素
+	void GetNeighborGrid(std::function<void(uint32_t, uint32_t, uint8_t/*layer*/)> cb) const
+	{
+		for (uint8_t i = 0; i <= uint8_t(Direction::LF); ++i)
+		{
+			m_terr->GetData().GetNeighborLayerRelation(m_vols, m_layer, Direction(i));
+			uint32_t x, y;
+			CalcDirectionGrid(Direction(i), x, y);
+			const auto& vols = GetVoxels(x, y);
+			cb(x, y, GetLayer(vols, m_loc.z));
+		}
 	}
 };
 

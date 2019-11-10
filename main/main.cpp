@@ -7,13 +7,16 @@
 #include <sstream>
 #include <streambuf>
 
+
+
+
 void testVoxel()
 {
 	std::stringbuf sb;
 	std::stringstream ss;
 	{
 		TerrainData terr(3, 3, 3);
-		float spans[] = { 0.f, 20.f, 50.f };
+		float spans[] = { 0.f, 200.f, 500.f };
 		for (uint32_t i = 0; i < 3; ++i)
 			for (uint32_t j = 0; j < 3; ++j)
 				terr.AddVoxels(i, j, 2, spans);
