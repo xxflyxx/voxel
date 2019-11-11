@@ -29,9 +29,9 @@ void testVoxel()
 		terr.Import(is);
 		auto& voxel = terr.GetVoxels(1, 1);
 		auto layer = terr.GetLayer(voxel, 10.f);
-		for (uint8_t dir = Direction::Front; dir <= Direction::LF; dir++)
+		for (uint8_t dir = 0; dir <= uint8_t(Direction::LF); dir++)
 		{
-			auto rel = terr.GetNeighborLayerRelation(voxel, 1, Direction(dir));
+			uint8_t rel = (uint8_t)terr.GetNeighborLayerRelation(voxel, 1, Direction(dir));
 			std::cout << rel << std::endl;
 		}
 		auto hight = terr.GetHight(voxel, 1);
