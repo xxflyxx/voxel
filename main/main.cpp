@@ -13,7 +13,7 @@ void testVoxel()
 	std::stringstream ss;
 	{
 		TerrainData terr(3, 3, 3);
-		float spans[] = { 0.f, 20.f, 50.f };
+		float spans[] = { 0.f, 100.f, 300.f };
 		for (uint32_t i = 0; i < 3; ++i)
 			for (uint32_t j = 0; j < 3; ++j)
 				terr.AddVoxels(i, j, 2, spans);
@@ -26,6 +26,11 @@ void testVoxel()
 		terr.Import(is);
 		auto& voxel = terr.GetVoxels(1, 1);
 		auto layer = terr.GetLayer(voxel, 10.f);
+		for (uint8_t dir = Direction::Front; dir <= Direction::LF; dir++)
+		{
+			auto rel = terr.GetNeighborLayerRelation(voxel, 1, Direction(dir));
+			std::cout << rel << std::endl;
+		}
 		auto hight = terr.GetHight(voxel, 1);
 		std::cout << layer << hight << std::endl;
 	}

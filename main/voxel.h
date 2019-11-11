@@ -198,7 +198,7 @@ private:
 		auto rel = dstLayer == layer ? LayerRelation::Same
 			: dstLayer == layer + 1 ? LayerRelation::Above 
 			: dstLayer == layer - 1 ? LayerRelation::Low : LayerRelation::Unknow;
-		m_neighborLayerArr[arrIndex + layer] = uint32_t(rel) << (dir*2);
+		m_neighborLayerArr[arrIndex + layer] |= uint32_t(rel) << (dir*2);
 	}
 
 public:
@@ -214,7 +214,7 @@ public:
 				for (uint8_t layer = 0; layer < vols.count; ++layer)
 				{
 					auto hight = GetHight(vols, layer);
-					for (auto dir = int(Direction::Front); dir <= int(Direction::LF); ++dir)
+					for (auto dir = uint8_t(Direction::Front); dir <= uint8_t(Direction::LF); ++dir)
 						CalcNeighborRelation(i, j, Direction(dir), layer, hight, vols.neighborLayerIndex);
 				}
 			}
@@ -245,18 +245,30 @@ public:
 		return LayerRelation(relation >> offset);
 	}
 
-	// 高度计算layer
+	// 遍历layer寻找根据高度合适的layer
 	uint8_t GetLayer(const Voxels& vols, float hight) const
 	{
 		uint8_t layer = 0;
-		for (auto i = 0; i < vols.count; ++i)
+		for (uint8_t i = 0; i < vols.count; ++i)
 		{
-			if (GetVoxelUpper(vols.spanIndex, i) < hight)
+			float v = GetVoxelUpper(vols.spanIndex, i);
+			if (v <= hight)
 				layer = i;
 			else
 				break;
 		}
 		return layer;
+	}
+
+	// 遍历寻找误差范围内的layer
+	uint8_t GetLayer(const Voxels& vols, float hight, float up, float down) const
+	{
+		for (uint8_t i = 0; i < vols.count; ++i)
+		{
+			float v = GetVoxelUpper(vols.spanIndex, i);
+			if (v + up >= hight && v - down <= hight)
+				return i;
+		}
 	}
 
 	// layer计算高
