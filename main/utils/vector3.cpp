@@ -1,13 +1,12 @@
 #include "pch.h"
-#include <math.h>
 #include "vector3.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
-//#include <cmath>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <stdint.h>
+// #include <math.h>
+#include <cmath>
 // #include <cfloat>
-//#include <iostream>
+#include <iostream>
 
 using namespace std;
 
@@ -157,6 +156,3 @@ float Vector3::Distance(const Vector3 &a, const Vector3 &b) {
 	float dz = a.z - b.z;
 	return sqrt(dx * dx + dy * dy + dz * dz);
 }
-————————————————
-版权声明：本文为CSDN博主「gongchao1212」的原创文章，遵循 CC 4.0 BY - SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https ://blog.csdn.net/shi_tou_ge/article/details/45576869

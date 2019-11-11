@@ -91,7 +91,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./;system;component;../entt;utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;system;component;../entt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -144,8 +144,6 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./;system;component;../entt;utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,15 +153,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="component\compDest.h" />
-    <ClInclude Include="component\compScene.h" />
     <ClInclude Include="component\compVoxelProxy.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="system\sysVoxelFindPath.h" />
     <ClInclude Include="typedef.h" />
-    <ClInclude Include="utility\math.h" />
-    <ClInclude Include="utility\rand.h" />
-    <ClInclude Include="utility\vector3.h" />
+    <ClInclude Include="utils\math.h" />
+    <ClInclude Include="utils\rand.h" />
+    <ClInclude Include="utils\vector3.h" />
     <ClInclude Include="voxel.h" />
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +171,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="system\sysVoxelFindPath.cpp" />
-    <ClCompile Include="utility\math.cpp" />
+    <ClCompile Include="utils\math.cpp" />
+    <ClCompile Include="utils\vector3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

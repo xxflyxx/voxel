@@ -4,6 +4,6 @@
 
 struct CompDest
 {
-	Location m_dest;
+	Location m_loc;
 	bool m_arrived = true;
 };

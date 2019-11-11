@@ -2,6 +2,10 @@
 
 #include "voxel.h"
 
-struct CompVexelProxy : VoxelProxy
+struct CompVexelProxy
 {
+	VoxelProxy* m_pxy;
+	CompVexelProxy()
+	{
+	}
 };

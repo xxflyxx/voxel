@@ -53,9 +53,9 @@ public:
 	//求向量模
 	float VectorMag(const Vector3 &a);
 	//计算两向量的叉乘
-	Vector3 CrossProduct(const Vector3 &a, const Vector3 &b);
+	static Vector3 CrossProduct(const Vector3 &a, const Vector3 &b);
 	//计算两点间的距离
-	float Distance(const Vector3 &a, const Vector3 &b);
+	static float Distance(const Vector3 &a, const Vector3 &b);
 	//打印向量
 	void PrintVector3();
 };
