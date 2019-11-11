@@ -30,6 +30,12 @@
     <ClInclude Include="typedef.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="component\compVoxelProxy.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sysVoxelFindPath.h">
+      <Filter>system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -37,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="system\sysVoxelFindPath.cpp">
+      <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
