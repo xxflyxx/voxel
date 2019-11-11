@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../voxel.h"
+#include "voxel.h"
 
 struct CompVexelProxy : VoxelProxy
 {

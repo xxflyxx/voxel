@@ -19,6 +19,9 @@
     <Filter Include="system">
       <UniqueIdentifier>{841918f7-237e-44d7-873d-ec22535ac3d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{758ba729-4769-4d58-b624-5cb5d9465ddb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -36,6 +39,21 @@
     <ClInclude Include="system\sysVoxelFindPath.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="component\compScene.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="component\compDest.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\math.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\rand.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\vector3.h">
+      <Filter>utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -46,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="system\sysVoxelFindPath.cpp">
       <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\math.cpp">
+      <Filter>utility</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
