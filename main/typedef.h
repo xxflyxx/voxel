@@ -16,10 +16,11 @@ struct Rotation
 	float roll;
 };
 
-struct Location : Vector3
-{
-
-};
+typedef Vector3 Location;
+// struct Location : Vector3
+// {
+// 
+// };
 
 class Transform
 {
@@ -28,3 +29,7 @@ public:
 	Rotation rot;
 	//Vector3 scale;
 };
+
+
+#define check(x) {}
+

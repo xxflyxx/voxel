@@ -48,6 +48,15 @@
     <ClInclude Include="utils\vector3.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="component\compScene.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="component\compDest.h">
+      <Filter>component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sysMoveByVelocity.h">
+      <Filter>system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -64,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="utils\vector3.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="system\sysMoveByVelocity.cpp">
+      <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

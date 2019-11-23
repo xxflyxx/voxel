@@ -203,6 +203,13 @@ private:
 	}
 
 public:
+	// 根据原layer 和 LayerRelation 得到 目标layer;
+	uint8_t RelationToLayer(uint8_t layer, LayerRelation rel) const
+	{
+		check(rel != LayerRelation::Unknow);
+		return rel == LayerRelation::Same ? layer : rel == LayerRelation::Above ? layer + 1 : rel == LayerRelation::Low ? layer - 1 : 0;
+	}
+
 	// 构建附近关系
 	void BuildNeighbor()
 	{
@@ -277,7 +284,6 @@ public:
 
 	void CalcDirectionGrid(Direction dir, uint32_t& x, uint32_t& y) const
 	{
-
 	}
 };
 
@@ -336,6 +342,7 @@ public:
 		mask += 1;
 	}
 
+	// todo: 半径没实现
 	void AddMask(uint32_t x, uint32_t y, uint8_t layer, uint8_t radius = 0)
 	{
 		if (radius < 1)
@@ -348,6 +355,7 @@ public:
 		mask -= 1;
 	}
 
+	// todo: 半径没实现
 	void DecMask(uint32_t x, uint32_t y, uint8_t layer, uint8_t radius = 0)
 	{
 		if (radius < 1)
@@ -373,6 +381,8 @@ public:
 	VoxelProxy(TerrainInstance* terr, const Location& loc, uint8_t radius=0)
 		: m_terr(terr), m_radius(radius) { Update(loc);	}
 
+	const Location& GetLocation() const { return m_loc; }
+
 	// 取当前体素上下
 	float GetUpper() const { return m_terr->GetData().GetVoxelUpper(m_vols.spanIndex, m_layer); }
 	float GetDown() const { return m_terr->GetData().GetVoxelDown(m_vols.spanIndex, m_layer); }
@@ -394,10 +404,37 @@ public:
 		m_layer = GetLayer(m_vols, loc.z);
 	}
 
+	// 位移失败返回false, bug: 中间可能跨越了多个格子
+	bool MoveTo(const Location& loc)
+	{
+		auto gridX = uint32_t(loc.x / m_terr->GetData().GridSize());
+		auto gridY = uint32_t(loc.y / m_terr->GetData().GridSize());
+		const auto& vols = m_terr->GetData().GetVoxels(gridX, gridY);
+		auto rel = GetRelation(gridX, gridY);
+		if (rel == LayerRelation::Unknow)
+		{
+			return false;
+		}
+		m_loc = loc;
+		m_gridX = gridX;
+		m_gridY = gridY;
+		m_vols = vols;
+		m_grid = m_terr->GetGrid(gridX, gridY);
+		m_layer = m_terr->GetData().RelationToLayer(m_layer, rel);
+		m_loc.z = GetUpper();
+		return true;
+	}
+
 	// x y 计算体素
 	const TerrainData::Voxels& GetVoxels(uint32_t x, uint32_t y) const
 	{
 		return m_terr->GetData().GetVoxels(x, y);
+	}
+
+	//  计算 dir 对应 X Y
+	void CalcDirectionGrid(Direction dir, uint32_t& x, uint32_t& y) const
+	{
+		m_terr->GetData().CalcDirectionGrid(dir, x, y);
 	}
 
 	// 获取体素的 layer
@@ -406,11 +443,68 @@ public:
 		return m_terr->GetData().GetLayer(vol, hight);
 	}
 
-	//  dir 对应 X Y
-	void CalcDirectionGrid(Direction dir, uint32_t& x, uint32_t& y) const
+	// 取得 对应的layer关系
+	LayerRelation GetRelation(uint32_t x, uint32_t y) const
 	{
-		m_terr->GetData().CalcDirectionGrid(dir, x, y);
+		LayerRelation rel = LayerRelation::Unknow;
+
+		int offX = int(m_gridX - x);
+		int offY = int(m_gridY - y);
+
+		if (offX > 1 || offX < -1 || offY > 1 || offY < -1)
+			return rel;
+		else
+		{
+			Direction dir = Direction::Front;
+			switch (offX)
+			{
+			case -1:
+				switch (offY)
+				{
+				case -1:
+					dir = Direction::LB; break;
+				case 0:
+					dir = Direction::Left; break;
+				case 1:
+					dir = Direction::LF; break;
+				}
+				break;
+			case 0:
+				switch (offY)
+				{
+				case -1:
+					dir = Direction::Back; break;
+				case 0:
+					return LayerRelation::Same; break;
+				case 1:
+					dir = Direction::Front; break;
+				}
+				break;
+			case 1:
+				switch (offY)
+				{
+				case -1:
+					dir = Direction::RB; break;
+				case 0:
+					dir = Direction::Right; break;
+				case 1:
+					dir = Direction::RF; break;
+				}
+				break;
+			}
+			return m_terr->GetData().GetNeighborLayerRelation(GetVoxels(x, y), m_layer, dir);
+		}
 	}
+
+	// 获取位置对应的关系
+	LayerRelation GetRelation(const Location& loc) const
+	{
+		auto gridX = uint32_t(loc.x / m_terr->GetData().GridSize());
+		auto gridY = uint32_t(loc.y / m_terr->GetData().GridSize());
+
+		return GetRelation(gridX, gridY);
+	}
+
 
 	// 遍历 周围体素
 	void GetNeighborGrid(std::function<void(uint32_t, uint32_t, uint8_t/*layer*/)> cb) const

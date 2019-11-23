@@ -12,6 +12,8 @@
 #include "compScene.h"
 #include "compDest.h"
 #include "compVoxelProxy.h"
+#include <thread>
+#include <chrono>
 
 
 
@@ -62,6 +64,14 @@ void UpdateRandMove(entt::registry& registry)
 
 void TestECS()
 {
+	TerrainData terr(3, 3, 3);
+	float spans[] = { 0.f, 100.f, 300.f };
+	for (uint32_t i = 0; i < 3; ++i)
+		for (uint32_t j = 0; j < 3; ++j)
+			terr.AddVoxels(i, j, 2, spans);
+
+	TerrainInstance terr_ins(&terr);
+
 	entt::registry registry;
 	std::uint64_t dt = 16;
 
@@ -69,15 +79,20 @@ void TestECS()
 		auto entity = registry.create();
 		registry.assign<CompScene>(entity);
 		registry.assign<CompDest>(entity);
-		registry.assign<CompVexelProxy>(entity);
+		registry.assign<CompVexelProxy>(entity, new VoxelProxy(&terr_ins, Location(0.f,0.f,0.f)));
 	}
 
-	UpdateRandMove(registry);
+	for (;;)
+	{
+		UpdateRandMove(registry);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
 }
 
 int main()
 {
 	TestVoxel();
+	TestECS();
     std::cout << "Hello World!\n"; 
 }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -153,8 +153,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="component\compDest.h" />
+    <ClInclude Include="component\compScene.h" />
     <ClInclude Include="component\compVoxelProxy.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="system\sysMoveByVelocity.h" />
     <ClInclude Include="system\sysVoxelFindPath.h" />
     <ClInclude Include="typedef.h" />
     <ClInclude Include="utils\math.h" />
@@ -170,6 +173,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="system\sysMoveByVelocity.cpp" />
     <ClCompile Include="system\sysVoxelFindPath.cpp" />
     <ClCompile Include="utils\math.cpp" />
     <ClCompile Include="utils\vector3.cpp" />

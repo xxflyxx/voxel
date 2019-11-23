@@ -5,7 +5,4 @@
 struct CompVexelProxy
 {
 	VoxelProxy* m_pxy;
-	CompVexelProxy()
-	{
-	}
 };
