@@ -14,6 +14,7 @@
 #include "compVoxelProxy.h"
 #include <thread>
 #include <chrono>
+#include "sysMoveByVelocity.h"
 
 
 
@@ -69,29 +70,31 @@ void TestECS()
 	for (uint32_t i = 0; i < 3; ++i)
 		for (uint32_t j = 0; j < 3; ++j)
 			terr.AddVoxels(i, j, 2, spans);
+	terr.BuildNeighbor();
 
 	TerrainInstance terr_ins(&terr);
 
 	entt::registry registry;
-	std::uint64_t dt = 16;
+	float dt = 0.016f;
 
-	for (auto i = 0; i < 10; ++i) {
+	for (auto i = 0; i < 1; ++i) {
 		auto entity = registry.create();
-		registry.assign<CompScene>(entity);
+		registry.assign<CompScene>(entity, Location(1.f, 1.f, 1.f), Vector3(10.f, 0.f, 0.f));
 		registry.assign<CompDest>(entity);
-		registry.assign<CompVexelProxy>(entity, new VoxelProxy(&terr_ins, Location(0.f,0.f,0.f)));
+		registry.assign<CompVexelProxy>(entity, new VoxelProxy(&terr_ins, Location(1.f, 1.f, 1.f)));
 	}
 
 	for (;;)
 	{
-		UpdateRandMove(registry);
+		//UpdateRandMove(registry);
+		SysMoveByVelocity::Update(dt, registry);
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
 int main()
 {
-	TestVoxel();
+// 	TestVoxel();
 	TestECS();
     std::cout << "Hello World!\n"; 
 }

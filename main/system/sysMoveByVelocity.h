@@ -5,7 +5,7 @@
 class SysMoveByVelocity
 {
 public:
-	static void Update(std::uint64_t dt, entt::registry &registry);
+	static void Update(float dt, entt::registry &registry);
 };
 
 

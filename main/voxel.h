@@ -75,7 +75,6 @@ private:
 	typedef uint16_t NeighborLayer;
 	std::vector<NeighborLayer> m_neighborLayerArr;
 
-	uint8_t SpanCount(uint8_t layerNum) { return layerNum * 2 - 1; }
 	void StreamRead(std::istream& is, uint32_t& v) { is.read((char*)&v, sizeof(uint32_t)); }
 	void StreamWrite(std::ostream& os, uint32_t v) { os.write((char*)&v, sizeof(uint32_t)); }
 	void StreamRead(std::istream& is, uint8_t& v) { is.read((char*)&v, sizeof(uint8_t)); }
@@ -87,6 +86,7 @@ public:
 		m_gridArr.resize(m_length*m_width);
 	}
 
+	// 导入
 	void Import(std::istream& is)
 	{
 		StreamRead(is, m_length);
@@ -111,6 +111,7 @@ public:
 		BuildNeighbor();
 	}
 
+	// 导出
 	void Export(std::ostream& os)
 	{
 		StreamWrite(os, m_length);
@@ -204,11 +205,14 @@ private:
 
 public:
 	// 根据原layer 和 LayerRelation 得到 目标layer;
-	uint8_t RelationToLayer(uint8_t layer, LayerRelation rel) const
+	static uint8_t RelationToLayer(uint8_t layer, LayerRelation rel)
 	{
 		check(rel != LayerRelation::Unknow);
 		return rel == LayerRelation::Same ? layer : rel == LayerRelation::Above ? layer + 1 : rel == LayerRelation::Low ? layer - 1 : 0;
 	}
+
+	// 体素数量转span数量
+	static uint8_t SpanCount(uint8_t layerNum) { return layerNum * 2 - 1; }
 
 	// 构建附近关系
 	void BuildNeighbor()
@@ -305,10 +309,20 @@ private:
 	std::vector<Grid> m_gridArr;
 
 public:
-	TerrainInstance(TerrainData* terr) : m_terr(terr) {}
+	TerrainInstance(TerrainData* terr) : m_terr(terr)
+	{
+		m_gridArr.resize(terr->Length()*terr->Width());
+		for(uint32_t x=0;x<terr->Length();++x)
+			for (uint32_t y=0;y<terr->Width();++y)
+			{
+				const auto& vx = terr->GetVoxels(x, y);
+				m_gridArr[y*GetData().Width() + x].maskIndex = (uint8_t)m_maskArr.size();
+				m_maskArr.resize(m_maskArr.size() + vx.count, 0);
+			}
+	}
 
 	const TerrainData& GetData() const { assert(m_terr); return *m_terr; }
-	const Grid& GetGrid(uint32_t x, uint32_t y) { return m_gridArr[y*GetData().Width()+x]; }
+	const Grid& GetGrid(uint32_t x, uint32_t y) const { return m_gridArr[y*GetData().Width()+x]; }
 	//const Grid& GetGrid(float x, float y) { return GetGrid(x/m_terr->GridSize(), y/m_terr->GridSize()); }
 
 	// 掩码
@@ -448,18 +462,18 @@ public:
 	{
 		LayerRelation rel = LayerRelation::Unknow;
 
-		int offX = int(m_gridX - x);
-		int offY = int(m_gridY - y);
+		int offX = int(x - m_gridX);
+		int offY = int(y - m_gridY);
 
 		if (offX > 1 || offX < -1 || offY > 1 || offY < -1)
 			return rel;
 		else
 		{
 			Direction dir = Direction::Front;
-			switch (offX)
+			switch (offY)
 			{
 			case -1:
-				switch (offY)
+				switch (offX)
 				{
 				case -1:
 					dir = Direction::LB; break;
@@ -470,7 +484,7 @@ public:
 				}
 				break;
 			case 0:
-				switch (offY)
+				switch (offX)
 				{
 				case -1:
 					dir = Direction::Back; break;
@@ -481,7 +495,7 @@ public:
 				}
 				break;
 			case 1:
-				switch (offY)
+				switch (offX)
 				{
 				case -1:
 					dir = Direction::RB; break;
@@ -492,7 +506,7 @@ public:
 				}
 				break;
 			}
-			return m_terr->GetData().GetNeighborLayerRelation(GetVoxels(x, y), m_layer, dir);
+			return m_terr->GetData().GetNeighborLayerRelation(m_vols, m_layer, dir);
 		}
 	}
 
